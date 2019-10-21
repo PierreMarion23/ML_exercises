@@ -1,0 +1,130 @@
+\documentclass[12 pt, a4paper]{article}
+
+
+\usepackage[T1]{fontenc}     
+\usepackage[utf8]{inputenc}  % Accents codés dans la fonte
+%\usepackage[english]{babel}  % Les traductions françaises
+\usepackage{numprint}        % \numprint(9,36) pour utilisation de la virgule comme séparateur décimal
+
+\usepackage[svgnames]{xcolor}% Pour les besoins de PythonTeX
+\usepackage[margin=1in]{geometry}       % Gestion des dimensions des pages
+\usepackage{graphicx}		% inclure des graphiques
+\usepackage{hyperref}			% lien hypertexte
+\usepackage{array}   % pour faire des tableaux
+\usepackage{pict2e}  % pour faire des figures géométriques
+\usepackage[english]{babel}	% utiliser les régles d'affichage françaises
+\usepackage{listings}
+%\usepackage{captions}
+
+\usepackage[centertags]{amsmath}
+\usepackage{amsfonts}
+%\usepackage{dsfont}
+\usepackage{booktabs}
+\usepackage{cite}
+\usepackage{tikz}
+\usepackage{bm}
+\usetikzlibrary{matrix,arrows,decorations.pathmorphing}
+
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{algorithmicx}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{mathdots}
+\usepackage{diagbox}
+\usepackage[nottoc]{tocbibind}
+
+\algnewcommand\algorithmicinput{\textbf{Input:}}
+\algnewcommand\INPUT{\item[\algorithmicinput]}
+
+\newcommand{\maxime}[1]{{\color{orange} {\bf MG's comment}: #1}}
+
+%\usepackage{pstricks-add}
+
+% pour les notes de bas de page
+%\AddThinSpaceBeforeFootnotes % à insérer si on utilise \usepackage[french]{babel}
+%\FrenchFootnotes % à insérer si on utilise \usepackage[french]{babel}
+
+
+\DeclareMathOperator{\sign}{sign}
+\usepackage{amsmath}
+\DeclareMathOperator{\Tr}{Tr}
+\DeclareMathOperator{\rank}{rank}
+\DeclareMathOperator{\Vect}{Vect}
+\DeclareMathOperator{\Var}{Var}
+\DeclareMathOperator{\Cov}{Cov}
+\DeclareMathOperator{\disc}{disc}
+
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\theoremstyle{definition}
+\newtheorem{defn}[theorem]{Definition} % definition numbers are dependent on theorem numbers
+\newtheorem{rmk}[theorem]{Remark}
+\newtheorem{ex}[theorem]{Example}
+
+\newenvironment{definition}[1][Definition]{\begin{trivlist}
+\item[\hskip \labelsep {\bfseries #1}]}{\end{trivlist}}
+
+\definecolor{darkspringgreen}{rgb}{0.09, 0.45, 0.27}
+\newcommand{\todo}[1]{{\color{darkspringgreen} {\bf TODO}: #1}}
+
+\def\changemargin#1#2{\list{}{\rightmargin#2\leftmargin#1}\item[]}
+\let\endchangemargin=\endlist 
+
+%\renewcommand\labelitemi{---}
+
+\let\OLDthebibliography\thebibliography
+\renewcommand\thebibliography[1]{
+  \OLDthebibliography{#1}
+  \setlength{\parskip}{0pt}
+  \setlength{\itemsep}{0pt plus 0.3ex}
+}
+
+\begin{document}
+
+Pierre Marion - AMAL
+
+\begin{center}
+\textbf{Description des différents algorithmes de descente de gradient et de leurs grands principes}
+\end{center}
+
+\textbf{Batch :} c'est la version la plus basique de descente de gradient. On calcule le gradient sur l'ensemble des données, et on descent selon un pas fixe. Cela présente plusieurs inconvénients : lenteur, impossibilité de calculer le gradient en ligne, nécessité de régler le pas de descente.
+
+\vspace{0.5cm}
+
+\textbf{Stochastic Gradient Descent (SGD) :} l'idée de la descente de gradient stochastique est de calculer le gradient en utilisant une seule donnée à chaque itération. Cette technique permet de supprimer les redondances associées au calcul du gradient par batch, et permet l'apprentissage en ligne. Néanmoins, elle possède une très grande variance, qui cause des fluctuations importantes de la fonction objectif. 
+
+La descente de gradient \textbf{mini-batch}, intermédiaire entre batch et SGD, vise à résoudre ce problème, en calculant le gradient sur un petit nombre de données.
+
+\vspace{0.5cm}
+
+\textbf{Nesterov Accelerated Gradient (NAG) :} cet algorithme vise à réduire les oscillations caractéristiques de SGD au niveau des points selles. Pour cela, la mise à jour de la direction de descente se fait avec de l'inertie (\textit{momemtum}), c'est-à-dire qu'on ajoute au terme de mise à jour une fraction du terme à l'itération précédente. On peut faire une analogie avec une bille qui descent le long d'une pente et qui accumule de l'inertie.
+
+De plus, pour éviter que l'inertie ne soit trop importante, on calcule le nouveau gradient à la position future approchée (calculée grâce au terme d'inertie) et non pas à la position actuelle. Dans notre analogie, cela permet d'éviter que la bille ne remonte trop haut lorsqu'elle atteint la fin de la pente.
+
+\vspace{0.5cm}
+
+\textbf{Adagrad :} les algorithmes présentés jusqu'à maintenant ont un inconvénient majeur : ils utilisent le même pas de descente pour tous les paramètres. Ce comportement est peu adapté au cas des données \textit{sparse}, car on voudrait avoir un pas plus important pour les paramètres rares, et un pas plus faible pour les paramètres fréquents, c'est-à-dire ajouter une propriété d'adaptativité à l'algorithme de descente de gradient.
+
+Pour cela, Adagrad divise pour chaque paramètre le pas de descente par la norme 2 des gradients déjà calculés pour ce paramètre. 
+
+\vspace{0.5cm}
+
+\textbf{RMSprop :} cette extension d'Adagrad vise à résoudre son inconvénient principal, qui est la décroissance vers 0 des pas de gradient. Au lieu de diviser par la norme 2 des gradients, on divise par une moyenne des gradients au carré pondérés par un paramètre de \textit{decay}. A noter que cette méthode issue d'un cours de Geoff Hinton n'a pas été publiée.
+
+\vspace{0.5cm}
+
+\textbf{Adadelta :} il s'agit d'une variante de RMSprop, qui permet d'éliminer la difficulté de régler le pas de descente, en remplaçant ce paramètre par une autre moyenne glissante, cette fois celle des termes de mises à jour.
+
+\vspace{0.5cm}
+
+\textbf{Adaptive Moment Estimation (Adam) :} comme son nom l'indique, cet algorithme combine les idées d'adaptativité (Adagrad, RMSprop, Adadelta) et d'inertie (momentum, NAG).
+
+\end{document}
+

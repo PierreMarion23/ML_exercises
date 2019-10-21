@@ -1,0 +1,5 @@
+jupyter nbconvert --to html RL_td1.ipynb --TagRemovePreprocessor.remove_cell_tags='{"hide"}'
+
+https://nbconvert.readthedocs.io/en/latest/removing_cells.html
+
+https://github.com/jupyter/nbconvert/issues/764

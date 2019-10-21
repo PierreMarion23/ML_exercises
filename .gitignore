@@ -1,0 +1,6 @@
+admin/*
+revisions/*
+convex_optimization_MVA/*
+optimal_transport_MVA/*
+**/.ipynb_checkpoints
+**/runs
